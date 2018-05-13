@@ -4,7 +4,7 @@
     path: "{{ ssh_host_signer_key_directory }}"
     pattern: ssh_host_*_key
   register: private_keys
-  failed_when: private_keys.matched == 0
+  failed_when: "\"matched\" not in private_keys or private_keys.matched == 0"
   become: true
 
 - name: Create local temporary directory.
@@ -26,6 +26,7 @@
   fetch:
     src: "{{ item.path }}-cert.pub"
     dest: "{{ temporary_directory.path }}/existing_certificates/"
+    fail_on_missing: false
   with_items: "{{ private_keys.files }}"
   changed_when: false
 
